@@ -54,27 +54,16 @@ lemma T_eq_choose (k : ℕ) : T k = (k + 1).choose 2 := by
 
 /-- `T_n + T_{n+1} = (n + 1)²`: the two triangular numbers of the leaf sum to the square. -/
 lemma T_add_T (n : ℕ) : T n + T (n + 1) = (n + 1) ^ 2 := by
-  have h1 := two_mul_T n
-  have h2 := two_mul_T (n + 1)
-  nlinarith
+  nlinarith [two_mul_T n, two_mul_T (n + 1)]
 
 /-- `T_{n+1} = T_n + (n + 1)`: they differ by its root. -/
 lemma T_succ_sub_T (n : ℕ) : T (n + 1) = T n + (n + 1) := by
-  have h1 := two_mul_T n
-  have h2 := two_mul_T (n + 1)
-  nlinarith
+  nlinarith [two_mul_T n, two_mul_T (n + 1)]
 
 /-- **The note of NAF 4073**: `T_n² + T_{n+1}² = T_{(n+1)²}`, the triangular number of a
 square is the sum of the squares of the two consecutive triangular numbers whose sum it is. -/
 theorem triangular_of_square (n : ℕ) : T n ^ 2 + T (n + 1) ^ 2 = T ((n + 1) ^ 2) := by
-  have h1 := two_mul_T n
-  have h2 := two_mul_T (n + 1)
-  have h3 := two_mul_T ((n + 1) ^ 2)
-  have : 4 * (T n ^ 2 + T (n + 1) ^ 2) = 4 * T ((n + 1) ^ 2) := by
-    calc 4 * (T n ^ 2 + T (n + 1) ^ 2) = (2 * T n) ^ 2 + (2 * T (n + 1)) ^ 2 := by ring
-      _ = 2 * (2 * T ((n + 1) ^ 2)) := by rw [h1, h2, h3]; ring
-      _ = 4 * T ((n + 1) ^ 2) := by ring
-  omega
+  nlinarith [two_mul_T n, two_mul_T (n + 1), two_mul_T ((n + 1) ^ 2)]
 
 /-- The binomial form: `C(n, 2)² + C(n + 1, 2)² = C(n² + 1, 2)`, for every `n ≥ 1`. -/
 theorem triangular_of_square_choose (n : ℕ) (hn : 1 ≤ n) :
@@ -89,47 +78,23 @@ theorem nicomachus (n : ℕ) : ∑ i ∈ range (n + 1), i ^ 3 = T n ^ 2 := by
   | zero => simp [T]
   | succ n ih =>
     rw [sum_range_succ, ih]
-    have h1 := two_mul_T n
-    have h2 := two_mul_T (n + 1)
-    have : 4 * (T n ^ 2 + (n + 1) ^ 3) = 4 * T (n + 1) ^ 2 := by
-      calc 4 * (T n ^ 2 + (n + 1) ^ 3) = (2 * T n) ^ 2 + 4 * (n + 1) ^ 3 := by ring
-        _ = (2 * T (n + 1)) ^ 2 := by rw [h1, h2]; ring
-        _ = 4 * T (n + 1) ^ 2 := by ring
-    omega
+    nlinarith [two_mul_T n, two_mul_T (n + 1)]
 
 /-- **`T_{n²} = 2 T_n² − n³`**, twice the sum of the first `n` cubes less the last. -/
 theorem triangular_of_square_cubes (n : ℕ) :
     T ((n + 1) ^ 2) + (n + 1) ^ 3 = 2 * T (n + 1) ^ 2 := by
-  have h := triangular_of_square n
-  have h1 := two_mul_T n
-  have h2 := two_mul_T (n + 1)
-  have : T (n + 1) ^ 2 = T n ^ 2 + (n + 1) ^ 3 := by
-    have e : 4 * T (n + 1) ^ 2 = 4 * (T n ^ 2 + (n + 1) ^ 3) := by
-      calc 4 * T (n + 1) ^ 2 = (2 * T (n + 1)) ^ 2 := by ring
-        _ = (2 * T n) ^ 2 + 4 * (n + 1) ^ 3 := by rw [h1, h2]; ring
-        _ = 4 * (T n ^ 2 + (n + 1) ^ 3) := by ring
-    omega
-  omega
+  rw [← triangular_of_square]
+  nlinarith [two_mul_T n, two_mul_T (n + 1)]
 
 /-- `T_{n+1}² = T_n² + (n + 1)³`: Germain's difference. -/
 lemma sq_T_succ (n : ℕ) : T (n + 1) ^ 2 = T n ^ 2 + (n + 1) ^ 3 := by
-  have h1 := two_mul_T n
-  have h2 := two_mul_T (n + 1)
-  have e : 4 * T (n + 1) ^ 2 = 4 * (T n ^ 2 + (n + 1) ^ 3) := by
-    calc 4 * T (n + 1) ^ 2 = (2 * T (n + 1)) ^ 2 := by ring
-      _ = (2 * T n) ^ 2 + 4 * (n + 1) ^ 3 := by rw [h1, h2]; ring
-      _ = 4 * (T n ^ 2 + (n + 1) ^ 3) := by ring
-  omega
+  nlinarith [two_mul_T n, two_mul_T (n + 1)]
 
 /-- Consecutive terms of `T_{n²}` differ by the sum of two consecutive cubes. -/
 theorem square_step (n : ℕ) :
     T ((n + 2) ^ 2) = T ((n + 1) ^ 2) + (n + 1) ^ 3 + (n + 2) ^ 3 := by
-  have a := triangular_of_square n
-  have b := triangular_of_square (n + 1)
-  have c := sq_T_succ n
-  have d := sq_T_succ (n + 1)
-  rw [show n + 1 + 1 = n + 2 by ring] at b d
-  omega
+  rw [← triangular_of_square, ← triangular_of_square, sq_T_succ (n + 1), sq_T_succ]
+  ring
 
 /-- The line `1 + 64 … 189` of the leaf: `189 = 4³ + 5³ = T_25 − T_16`, the step of
 `square_step` at `n = 3`; `189` itself is neither triangular nor a square. -/
