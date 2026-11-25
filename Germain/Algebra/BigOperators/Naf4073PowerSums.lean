@@ -104,10 +104,8 @@ lemma sum_even_binom (x : ℚ) (k : ℕ) :
   rw [sub_eq_add_neg x 1, add_pow, add_pow, mul_sum, mul_sum, ← sum_sub_distrib]
   refine sum_congr rfl fun m _ => ?_
   rcases Nat.even_or_odd (k - m) with h | h
-  · rw [ite_eq_left h, h.neg_one_pow]
-    ring
-  · rw [ite_eq_right (Nat.not_even_iff_odd.mpr h), h.neg_one_pow]
-    ring
+  · rw [ite_eq_left h, h.neg_one_pow]; ring
+  · rw [ite_eq_right (Nat.not_even_iff_odd.mpr h), h.neg_one_pow]; ring
 
 /-- The even system: `2^(k−1) (2n+1) T_n^k = ∑_{m ≤ k} C(k, m) (S_{k+m} if k − m is even,
 `2 S_{k+m+1}` if odd)`, for `k ≥ 1`; the leading term is `(2k+1) S_{2k}`. -/
@@ -118,25 +116,21 @@ theorem T_pow_eq_sum_even (k n : ℕ) (hk : 1 ≤ k) :
   obtain ⟨k, rfl⟩ : ∃ j, k = j + 1 := ⟨k - 1, by omega⟩
   simp only [Nat.add_sub_cancel]
   induction n with
-  | zero =>
-    simp only [T, S, zero_add, sum_range_one]
-    norm_num
+  | zero => norm_num [T, S]
   | succ n ih =>
-    have hS : ∀ p, (S p (n + 1) : ℚ) = S p n + ((n : ℚ) + 1) ^ p := by
-      intro p; simp [S, sum_range_succ _ (n + 1)]
-    have split : ∀ m ∈ range (k + 1 + 1), ((k + 1).choose m : ℚ)
+    have hS (p : ℕ) : (S p (n + 1) : ℚ) = S p n + ((n : ℚ) + 1) ^ p := by
+      simp [S, sum_range_succ _ (n + 1)]
+    have hsplit : ∀ m ∈ range (k + 1 + 1), ((k + 1).choose m : ℚ)
         * (if Even (k + 1 - m) then (S (k + 1 + m) (n + 1) : ℚ)
             else 2 * (S (k + 1 + m + 1) (n + 1) : ℚ))
         = ((k + 1).choose m : ℚ) * (if Even (k + 1 - m) then (S (k + 1 + m) n : ℚ)
             else 2 * (S (k + 1 + m + 1) n : ℚ))
           + ((n : ℚ) + 1) ^ (k + 1) / 2 * (((k + 1).choose m : ℚ)
             * (if Even (k + 1 - m) then 2 * ((n : ℚ) + 1) ^ m
-              else 4 * ((n : ℚ) + 1) ^ (m + 1))) := by
-      intro m _
-      rw [hS, hS]
-      split_ifs <;> ring
-    rw [sum_congr rfl split, sum_add_distrib, ← ih, ← mul_sum, ← sum_even_binom]
-    rw [T_succ_cast, T_cast']
+              else 4 * ((n : ℚ) + 1) ^ (m + 1))) := fun m _ => by
+      rw [hS, hS]; split_ifs <;> ring
+    rw [sum_congr rfl hsplit, sum_add_distrib, ← ih, ← mul_sum, ← sum_even_binom, T_succ_cast,
+      T_cast']
     push_cast
     rw [mul_pow, mul_pow, div_pow]
     field_simp
@@ -147,14 +141,13 @@ theorem T_pow_eq_sum_even (k n : ℕ) (hk : 1 ≤ k) :
 theorem S_two (n : ℕ) : 3 * (S 2 n : ℚ) = (2 * n + 1) * T n := by
   have h := T_pow_eq_sum_even 1 n le_rfl
   norm_num [sum_range_succ] at h
-  linarith
+  linear_combination (-1 : ℚ) * h
 
 theorem S_four (n : ℕ) :
     15 * (S 4 n : ℚ) = (2 * n + 1) * T n * (6 * T n - 1) := by
   have h := T_pow_eq_sum_even 2 n (by norm_num)
-  norm_num [sum_range_succ] at h
-  have h2 := S_two n
-  nlinarith
+  norm_num [sum_range_succ, Nat.choose] at h
+  linear_combination (-3 : ℚ) * h - S_two n
 
 theorem S_nine (n : ℕ) :
     5 * (S 9 n : ℚ) = (T n : ℚ) ^ 2 * (16 * (T n : ℚ) ^ 3 - 20 * (T n : ℚ) ^ 2 + 12 * T n - 3) := by
@@ -166,9 +159,8 @@ theorem S_nine (n : ℕ) :
 theorem S_six (n : ℕ) :
     21 * (S 6 n : ℚ) = (2 * n + 1) * T n * (12 * (T n : ℚ) ^ 2 - 6 * T n + 1) := by
   have h := T_pow_eq_sum_even 3 n (by norm_num)
-  norm_num [sum_range_succ] at h
-  have h4 := S_four n
-  nlinarith
+  norm_num [sum_range_succ, Nat.choose] at h
+  linear_combination (-3 : ℚ) * h - S_four n
 
 theorem S_eight (n : ℕ) :
     45 * (S 8 n : ℚ)
