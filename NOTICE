@@ -1,0 +1,11 @@
+GermainArchivesProofs
+Copyright 2026 Michel Hua. Licensed under the Apache License, Version 2.0 (LICENSE).
+
+The files in Germain/ are also published under CC0 in
+https://github.com/Commutator-IO/germain-project (lean/Germain/).
+
+scripts/CheckAxioms.lean is copied from
+https://github.com/Commutator-IO/GrothendieckArchivesProofs (Apache-2.0, same author).
+
+This repository requires Mathlib (Apache-2.0) as a Lake dependency, at commit
+715a03a90adf491de40fbec8b456c179a623435f (lakefile.toml); no Mathlib code is copied.

@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Lean proofs of Sophie Germain's archives"
+  description: >-
+    Lean 4 proofs of statements read in Sophie Germain's manuscripts at the Bibliothèque
+    nationale de France, in the modernised readings of the edition germain-project: the note on
+    triangular numbers of NAF 4073, f. 32v, and the general statements that extend Germain's
+    computation (triangular numbers of products and powers, differences and sums of powers of
+    consecutive triangular numbers, sums of odd powers as polynomials in T_n, uniqueness of
+    Lagrange's formula), built on Mathlib.
+  authors:
+    - name: "Michel Hua"
+      orcid: "0009-0002-8304-0683"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - name: "Michel Hua"
+      orcid: "0009-0002-8304-0683"
+
+classification:
+  arxiv: ["math.NT", "math.HO"]
+  msc2020: ["03B35", "11B83", "01A50"]
+
+sources:
+  - title: "Sophie Germain, correspondence and papers, BnF NAF 4073"
+    authors:
+      - "Sophie Germain"
+    id: "https://gallica.bnf.fr/ark:/12148/btv1b10089787b"
+    type: "manuscript"
+    location: "https://gallica.bnf.fr/ark:/12148/btv1b10089787b/f42.item"
+    relationship: "formalizes"
+    note: "f. 32v (view 42): the note on the triangular number of a square, and the line 1 + 64 … 189."
+    license: "public-domain"
+    author_endorsement: "n/a"
+
+status:
+  scope: >-
+    The note of NAF 4073, f. 32v, and the general statements of the short article on it.
+    Every build fails on any warning, hence on any sorry, and checks that every constant uses
+    only the three standard axioms.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: []

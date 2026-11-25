@@ -1,0 +1,34 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch the Mathlib cache
+        run: lake exe cache get
+
+      - name: Build
+        run: lake build --log-level=warning
+
+      # Every constant of this repository depends only on propext, Classical.choice and
+      # Quot.sound, through Mathlib (no sorryAx, no added axiom).
+      - name: Check the axioms
+        run: lake env lean --run scripts/CheckAxioms.lean GermainArchivesProofs GermainArchivesProofs Germain

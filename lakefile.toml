@@ -1,0 +1,20 @@
+name = "GermainArchivesProofs"
+version = "0.1.0"
+defaultTargets = ["GermainArchivesProofs"]
+
+# A `sorry` is a warning, and a proof with a warning in it proves nothing: the build fails on either.
+[leanOptions]
+warningAsError = true
+
+# The Mathlib of germain-project (lean/lakefile.toml), where the same proofs are kept under CC0.
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "715a03a90adf491de40fbec8b456c179a623435f"
+
+[[lean_lib]]
+name = "GermainArchivesProofs"
+
+# One file per shelfmark of the Gallica manuscripts, as in germain-project.
+[[lean_lib]]
+name = "Germain"
