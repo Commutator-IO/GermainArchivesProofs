@@ -202,14 +202,16 @@ lemma IsEvenForm.const_mul {g : ℕ → ℚ} (c : ℚ) (hg : IsEvenForm g) :
 
 lemma IsEvenForm.sub {f g : ℕ → ℚ} (hf : IsEvenForm f) (hg : IsEvenForm g) :
     IsEvenForm (fun n => f n - g n) := by
-  have := hf.add (hg.const_mul (-1))
-  simpa [sub_eq_add_neg, neg_one_mul] using this
+  obtain ⟨P, hP⟩ := hf
+  obtain ⟨Q, hQ⟩ := hg
+  exact ⟨P - Q, fun n => by simp [hP, hQ]; ring⟩
 
 lemma IsEvenForm.sum {ι : Type*} (s : Finset ι) (g : ι → ℕ → ℚ)
     (hg : ∀ i ∈ s, IsEvenForm (g i)) : IsEvenForm (fun n => ∑ i ∈ s, g i n) := by
   have : IsEvenForm (∑ i ∈ s, g i) :=
     Finset.sum_induction _ IsEvenForm (fun _ _ => IsEvenForm.add) IsEvenForm.zero hg
-  simpa [Finset.sum_apply] using this
+  rwa [show (fun n => ∑ i ∈ s, g i n) = ∑ i ∈ s, g i from
+    funext fun n => (Finset.sum_apply n s g).symm]
 
 /-- `S_{2k} = (2n+1) T Q_k(T)` for every `k ≥ 1`: strong induction on the even system, whose
 terms are all even sums (`k + m` is even when `k − m` is, `k + m + 1` when it is not), the two
@@ -227,10 +229,10 @@ theorem S_even_isEvenForm (k : ℕ) (hk : 1 ≤ k) : IsEvenForm (fun n => (S (2 
     have h := T_pow_eq_sum_even (k + 1) n (by omega)
     rw [Nat.add_sub_cancel] at h
     rw [h, sum_range_succ, sum_range_succ]
-    simp only [hf, Nat.choose_self, Nat.choose_succ_self_right, Nat.sub_self,
-      show k + 1 - k = 1 by omega, even_zero, if_true, show ¬Even 1 from Nat.not_even_one,
-      if_false]
-    rw [show k + 1 + k + 1 = 2 * (k + 1) by ring, show k + 1 + (k + 1) = 2 * (k + 1) by ring]
+    simp only [hf, Nat.sub_self, show k + 1 - k = 1 by omega, Nat.choose_self,
+      Nat.choose_succ_self_right]
+    rw [ite_eq_left (show Even 0 from ⟨0, rfl⟩), ite_eq_right Nat.not_even_one,
+      show k + 1 + (k + 1) = 2 * (k + 1) by ring, show k + 1 + k + 1 = 2 * (k + 1) by ring]
     push_cast; ring
   -- every lower term is an even sum of index `2j`, `1 ≤ j ≤ k`
   have hlow : ∀ m ∈ range k, IsEvenForm (f m) := fun m hm => by
@@ -261,7 +263,9 @@ theorem S_even_eq_S_two_mul (k : ℕ) (hk : 1 ≤ k) :
     ∃ R : Polynomial ℚ, ∀ n, (S (2 * k) n : ℚ) = S 2 n * R.eval (T n : ℚ) := by
   obtain ⟨Q, hQ⟩ := S_even_isEvenForm k hk
   refine ⟨Polynomial.C 3 * Q, fun n => ?_⟩
-  rw [hQ n, Polynomial.eval_mul, Polynomial.eval_C]
+  have h := hQ n
+  simp only at h
+  rw [h, Polynomial.eval_mul, Polynomial.eval_C]
   linear_combination (-(Q.eval (T n : ℚ))) * S_two n
 
 end Germain.Naf4073
